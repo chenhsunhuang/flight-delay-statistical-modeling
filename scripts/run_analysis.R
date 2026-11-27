@@ -1,0 +1,16 @@
+# Run from the repository root: Rscript scripts/run_analysis.R [sample.csv]
+args <- commandArgs(trailingOnly = TRUE)
+path <- if (length(args)) args[1] else "data/raw/flight_data_2024_sample_200k.csv"
+for (f in c("preprocessing", "exploratory_analysis", "modeling", "diagnostics", "scenario_analysis")) source(file.path("R", paste0(f, ".R")))
+raw <- read.csv(path, stringsAsFactors = FALSE)
+prep <- prepare_flights(raw)
+fit <- fit_models(prep$model)
+print(fit$comparison); print(model_metrics(fit$final)); print(scenario_reference(fit$data))
+if (requireNamespace("car", quietly = TRUE)) print(car::vif(fit$main))
+sc <- scenario_analysis(fit$final, fit$data); print(sc$predictions)
+dir.create("outputs", showWarnings = FALSE)
+write.csv(fit$comparison, "outputs/model_comparison.csv", row.names = FALSE)
+write.csv(data.frame(metric = names(model_metrics(fit$final)), value = unname(model_metrics(fit$final))), "outputs/sample_model_metrics.csv", row.names = FALSE)
+write.csv(sc$predictions, "outputs/scenario_predictions.csv", row.names = FALSE)
+write.csv(odds_ratios(fit$final), "outputs/odds_ratios.csv", row.names = FALSE)
+saveRDS(list(model = fit$final, top_origins = prep$top_origins, top_dests = prep$top_dests), "outputs/model.rds")

@@ -1,0 +1,29 @@
+---
+title: "Operational Risk Analysis"
+output: html_document
+---
+
+Compare predicted risks at the same reference distance, airport groups, month and weekday. The scenario contrasts are conditional model predictions.
+
+```{r setup}
+root <- if (dir.exists("R")) "." else ".."
+for (f in c("preprocessing", "modeling", "scenario_analysis")) source(file.path(root, "R", paste0(f, ".R")))
+d <- prepare_flights(read.csv(file.path(root, "data/raw/flight_data_2024_sample_200k.csv")))$model
+fit <- fit_models(d, backward = FALSE)
+sc <- scenario_analysis(fit$final, fit$data)
+sc$reference
+```
+
+```{r predictions}
+sc$predictions[order(sc$predictions$mean_highrisk), ]
+sc$highrisk_correlation
+sc$predictions[, c("op_unique_carrier", "baseline", "congested", "sensitivity_abs", "sensitivity_rel")]
+```
+
+```{r chart}
+library(ggplot2)
+ggplot(sc$predictions, aes(y = reorder(op_unique_carrier, -sensitivity_abs))) +
+  geom_segment(aes(x = baseline, xend = congested, yend = reorder(op_unique_carrier, -sensitivity_abs)), color = "grey60") +
+  geom_point(aes(x = baseline, color = "Baseline")) + geom_point(aes(x = congested, color = "Congested")) +
+  labs(x = "Predicted delay probability", y = "Carrier", color = "Scenario") + theme_minimal()
+```

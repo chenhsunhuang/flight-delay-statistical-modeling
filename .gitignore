@@ -1,0 +1,13 @@
+data/raw/
+outputs/
+.Rhistory
+.RData
+.Rproj.user/
+*.rds
+*.RData
+.DS_Store
+analysis/*_files/
+analysis/*.html
+
+flight_data_2024.csv
+flight_data_2024_sample_200k.csv

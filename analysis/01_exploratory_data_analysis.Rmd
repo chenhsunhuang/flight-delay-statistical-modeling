@@ -1,0 +1,31 @@
+---
+title: "Exploratory Data Analysis"
+output: html_document
+---
+
+Explore delay distributions and candidate associations on the modeling sample. Post-departure variables are inspected descriptively, not included in the regression.
+
+```{r setup}
+root <- if (dir.exists("R")) "." else ".."
+source(file.path(root, "R/preprocessing.R"))
+source(file.path(root, "R/exploratory_analysis.R"))
+library(ggplot2)
+raw <- read.csv(file.path(root, "data/raw/flight_data_2024_sample_200k.csv"))
+d <- prepare_flights(raw)$clean
+```
+
+```{r distributions}
+for (v in c("time_block", "day_of_week", "month", "peak_time", "holiday", "op_unique_carrier", "origin_grp")) {
+  rates <- delay_by(d, v)
+  print(ggplot(rates, aes(group, delay_rate)) + geom_col(fill = "steelblue") +
+    labs(x = v, y = "Observed delay rate") + theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)))
+}
+print(correlation_screen(d))
+ggplot(d, aes(distance)) + geom_histogram(binwidth = 100) + theme_minimal()
+```
+
+```{r interaction}
+ggplot(carrier_time_rates(d), aes(time_block, is_delayed, group = op_unique_carrier, color = op_unique_carrier)) +
+  geom_line() + geom_point() + labs(y = "Observed delay rate", color = "Carrier") + theme_minimal()
+```

@@ -1,0 +1,15 @@
+metric,value
+raw_sample_rows,200000.0
+model_rows,196774.0
+carriers,15.0
+null_deviance,196173.6429162316
+residual_deviance,182621.6197842713
+main_effects_aic,183504.75082231063
+final_aic,182889.6197842713
+mcfadden_pseudo_r2,0.0690817733233775
+pearson_dispersion,1.0074021575011156
+training_accuracy,0.8023875105450924
+training_roc_auc,0.6834587416231559
+training_majority_accuracy,0.8013863620193724
+base_month,12.0
+base_dow,1.0

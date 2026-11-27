@@ -1,0 +1,22 @@
+---
+title: "Model Diagnostics"
+output: html_document
+---
+
+Examine dispersion, residuals, influence and conditional odds ratios. Accuracy and AUC refer to the fitting sample.
+
+```{r setup}
+root <- if (dir.exists("R")) "." else ".."
+for (f in c("preprocessing", "modeling", "diagnostics")) source(file.path(root, "R", paste0(f, ".R")))
+d <- prepare_flights(read.csv(file.path(root, "data/raw/flight_data_2024_sample_200k.csv")))$model
+fit <- fit_models(d, backward = FALSE)
+```
+
+```{r diagnostics}
+model_metrics(fit$final)
+car::vif(fit$main)
+car::vif(fit$final)
+plot_diagnostics(fit$final)
+anova(glm(is_delayed ~ 1, family = binomial(), data = fit$data), fit$final, test = "Chisq")
+head(odds_ratios(fit$final))
+```

@@ -1,0 +1,23 @@
+---
+title: "GLM Model Selection"
+output: html_document
+---
+
+Use AIC and likelihood ratio tests to compare the main-effects model with interaction extensions.
+
+```{r setup}
+root <- if (dir.exists("R")) "." else ".."
+source(file.path(root, "R/preprocessing.R"))
+source(file.path(root, "R/modeling.R"))
+d <- prepare_flights(read.csv(file.path(root, "data/raw/flight_data_2024_sample_200k.csv")))$model
+fit <- fit_models(d)
+```
+
+```{r comparison}
+summary(fit$main)
+AIC(fit$main, fit$stepwise)
+car::vif(fit$main)
+fit$comparison[order(fit$comparison$aic), ]
+anova(fit$main, fit$final, test = "Chisq")
+summary(fit$final)
+```
